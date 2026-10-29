@@ -56,14 +56,14 @@
     <h1>#4471 · three bugs merged under one subject rule</h1>
     <p class="meta">
       <span>owner <b>support desk</b></span>
-      <span class="status accepted">accepted</span>
+      <span class="status resolved">resolved</span>
       <span>reviewed 2026-10-29 · 0 days ago</span>
     </p>
   </header>
   <main>
-    <p>Ticket <code>#4471</code> was marked known as a single issue (<code>dates parse mm/dd in eu locales</code>), with 412 unique reports (from 427 exported rows across overlapping pages) merged by subject line under <a href="/kb/decisions/0001-dedupe-by-subject">decision 0001</a>. Reading the tenant configuration (<code>locales.ts</code>), cause rules (<code>causes.ts</code>), and report bodies (<code>desk-notes.json</code>) shows three separate problems inside <code>#4471</code>.</p>
+    <p>Ticket <code>#4471</code> was marked known as a single issue (<code>dates parse mm/dd in eu locales</code>), with 412 unique reports (from 427 exported rows across overlapping pages) merged by subject line under <a href="/kb/decisions/0001-dedupe-by-subject">decision 0001</a>. Reading the tenant configuration (<code>locales.ts</code>), cause rules (<code>causes.ts</code>), and report bodies (<code>desk-notes.json</code>) shows two causes (<code>parser</code> and <code>hint</code>) plus 5 <code>oneDayMove</code> reports filed under <code>parser</code>.</p>
 
-    <aside class="warn">Merging by subject line alone hid two additional bugs inside #4471: the booking-v3 form date hint mismatch and a one-day timezone/date shift.</aside>
+    <aside class="note">Resolved 05 Oct (#4471 closed): parser fixed (fix(dates): parse dd/mm for eu locales), hint won't fix (booking-v3 form retired).</aside>
 
     <h2>What was merged into #4471</h2>
 
@@ -83,7 +83,7 @@
           <td class="tags">parser ×356 · hint ×23</td>
           <td>11</td>
           <td>2026-04-01 → 2026-10-04</td>
-          <td>#4471</td>
+          <td>#4471 · fixed (fix(dates): parse dd/mm for eu locales)</td>
         </tr>
         <tr class="wrong">
           <td><code>hint</code></td>
@@ -91,20 +91,20 @@
           <td class="tags">hint ×18 · parser ×15</td>
           <td>3</td>
           <td>2026-04-17 → 2026-09-22</td>
-          <td>not this ticket — no ticket of its own</td>
+          <td>not this ticket — won't fix (booking-v3 form retired)</td>
         </tr>
       </tbody>
     </table>
 
     <p class="note">5 reports read as a one-day move; filed under <code>parser</code> by tenant.</p>
 
-    <h2>The three tickets</h2>
+    <h2>Engineering update (closed 05 Oct)</h2>
 
-    <ol>
-      <li><strong><a href="https://github.com/olafkrawczyk/support-kb-4471/issues/1">#1 · Shared date parser reads dates month-first (<code>MM/DD</code>) for day-first (<code>DD/MM</code>) locales</a></strong> (<code>parser</code>) — <strong>374</strong> month/day-swap reports (<strong>379</strong> total under <code>causeOf() === 'parser'</code> before separating <code>oneDayMove</code>) across all 11 day-first tenants on <code>app</code> (204), <code>email</code> (150), and <code>booking-v2</code> <code>form</code> (25, where the hint is <code>DD/MM/YYYY</code>), seen <code>2026-04-01</code> → <code>2026-10-04</code>.</li>
-      <li><strong><a href="https://github.com/olafkrawczyk/support-kb-4471/issues/2">#2 · <code>booking-v3</code> form prints <code>MM/DD/YYYY</code> date hint while parsing day-first (<code>DD/MM</code>)</a></strong> (<code>hint</code>) — <strong>33</strong> reports on the <code>form</code> channel across the 3 tenants running <code>booking-v3</code> (<code>alder.physio</code> ×12, <code>copper.studio</code> ×11, <code>pale.harbour</code> ×10), seen <code>2026-04-17</code> → <code>2026-09-22</code>. People follow the <code>MM/DD/YYYY</code> hint under the field while the form parses day-first.</li>
-      <li><strong><a href="https://github.com/olafkrawczyk/support-kb-4471/issues/3">#3 · Bookings and calendar invites shift by one day (<code>oneDayMove</code>)</a></strong> (<code>oneDayMove</code>) — <strong>5</strong> reports (<code>R-41202</code>, <code>R-41209</code>, <code>R-41236</code>, <code>R-41344</code>, <code>R-41620</code>) across 5 tenants (<code>kettle.books</code>, <code>alder.physio</code>, <code>nine.lanterns</code>, <code>pale.harbour</code>, <code>lantern.row</code>), seen <code>2026-04-02</code> → <code>2026-10-04</code>. These reports describe a one-day shift (such as Tuesday landing on Monday across timezones or in June) rather than a month/day swap, though <code>causes.ts</code> files them under <code>parser</code> by tenant.</li>
-    </ol>
+    <ul>
+      <li><strong><a href="https://github.com/olafkrawczyk/support-kb-4471/issues/1">#1 · <code>parser</code></a></strong> (<strong>fixed</strong> — <code>fix(dates): parse dd/mm for eu locales</code>) — <strong>379</strong> reports under <code>causeOf() === 'parser'</code> (<strong>374</strong> month/day-swap reports plus <strong>5</strong> reports read as a one-day move in <code>desk-notes.json</code>) across all 11 day-first tenants on <code>app</code> (204), <code>email</code> (150), and <code>booking-v2</code> <code>form</code> (25, where the hint is <code>DD/MM/YYYY</code>), seen <code>2026-04-01</code> → <code>2026-10-04</code>.</li>
+      <li><strong><a href="https://github.com/olafkrawczyk/support-kb-4471/issues/2">#2 · <code>hint</code></a></strong> (<strong>won't fix</strong> — <code>booking-v3 form retired</code>) — <strong>33</strong> reports on the <code>form</code> channel across the 3 tenants running <code>booking-v3</code> (<code>alder.physio</code> ×12, <code>copper.studio</code> ×11, <code>pale.harbour</code> ×10), seen <code>2026-04-17</code> → <code>2026-09-22</code>. People follow the <code>MM/DD/YYYY</code> hint under the field while the form parses day-first.</li>
+      <li><strong><a href="https://github.com/olafkrawczyk/support-kb-4471/issues/3">#3 · <code>oneDayMove</code></a></strong> (tracked in <code>desk-notes.json</code>, filed under <code>parser</code> by tenant) — <strong>5</strong> reports (<code>R-41202</code>, <code>R-41209</code>, <code>R-41236</code>, <code>R-41344</code>, <code>R-41620</code>) across 5 tenants (<code>kettle.books</code>, <code>alder.physio</code>, <code>nine.lanterns</code>, <code>pale.harbour</code>, <code>lantern.row</code>), seen <code>2026-04-02</code> → <code>2026-10-04</code>.</li>
+    </ul>
 
     <h2>Since April</h2>
 
@@ -177,7 +177,7 @@
 
     <h2>Why intake tags disagreed</h2>
 
-    <p><code>meta.intakeTag</code> guessed the cause from <code>browserLocale</code> when each report arrived (<code>parser ×371</code>, <code>hint ×41</code> across all 412 reports: <code>parser ×356 · hint ×23</code> on the 379 <code>parser</code> reports, and <code>hint ×18 · parser ×15</code> on the 33 <code>hint</code> reports). The actual cause depends on the tenant's configured locale (<code>dayFirst(tenant.locale)</code>), channel (<code>app</code>, <code>email</code>, or <code>form</code>), and booking form (<code>booking-v2</code> vs <code>booking-v3</code>), plus reading the body when a report is a one-day shift rather than a month/day swap.</p>
+    <p><code>meta.intakeTag</code> guessed the cause from <code>browserLocale</code> when each report arrived (<code>parser ×371</code>, <code>hint ×41</code> across all 412 reports: <code>parser ×356 · hint ×23</code> on the 379 <code>parser</code> reports, and <code>hint ×18 · parser ×15</code> on the 33 <code>hint</code> reports). The actual cause depends on the tenant's configured locale (<code>dayFirst(tenant.locale)</code>), channel (<code>app</code>, <code>email</code>, or <code>form</code>), and booking form (<code>booking-v2</code> vs <code>booking-v3</code>).</p>
 
     <p class="stamp">desk ref <b>DR-0PVF-P9V3</b></p>
   </main>
