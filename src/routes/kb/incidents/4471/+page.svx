@@ -3,23 +3,30 @@ layout: runbook
 title: '#4471 · dates parse mm/dd in eu locales'
 owner: support desk
 status: known
-reviewed: 2026-09-30
+reviewed: 2026-10-29
+signature: v1.eyJzdWIiOiI4NTQwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyOTcxNjMsImV4cCI6MTc5MzM4MzU2M30.bQMkcyn4Jr6pxK0rhM45Ru_qjF34I_EFL-gnBOKlp20
 ---
 
 <script>
   import CauseTable from '#lib/kb/CauseTable.svelte';
   import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
   import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const signature = 'v1.eyJzdWIiOiI4NTQwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyOTcxNjMsImV4cCI6MTc5MzM4MzU2M30.bQMkcyn4Jr6pxK0rhM45Ru_qjF34I_EFL-gnBOKlp20';
 </script>
 
 Since April, people have told us their bookings land on the wrong day: a month flipped. By
-4 October the desk had **412 reports**.
+4 October the desk had **412 reports** (from 427 exported rows after deduplicating overlapping export pages).
 
-**Merged as one issue.** The parser reads dates month first, and our tenants write the day
-first. The fix is queued.
+**Merged as one issue, split into three tickets.** Merging on subject alone ([decision 0001](/kb/decisions/0001-dedupe-by-subject)) put three distinct problems into `#4471`:
 
-<Callout>
-Known. One issue, one fix queued.
+1. **[#1 · `parser`](https://github.com/olafkrawczyk/support-kb-4471/issues/1)** — **374** month/day-swap reports (**379** total under `causeOf() === 'parser'` in `causes.ts` before separating `oneDayMove`) across all 11 day-first (`DD/MM`) tenants on `app` (204), `email` (150), and `booking-v2` `form` (25, `DD/MM/YYYY` hint), seen `2026-04-01` → `2026-10-04`. The shared parser reads every date month first (`MM/DD`), while our tenants write the day first (`DD/MM`).
+2. **[#2 · `hint`](https://github.com/olafkrawczyk/support-kb-4471/issues/2)** — **33** reports on the `form` channel across the 3 tenants on `booking-v3` (`alder.physio` ×12, `copper.studio` ×11, `pale.harbour` ×10), seen `2026-04-17` → `2026-09-22`. `booking-v3` prints `MM/DD/YYYY` under the date field, so customers type month first while the form parses day first (`DD/MM`).
+3. **[#3 · `oneDayMove`](https://github.com/olafkrawczyk/support-kb-4471/issues/3)** — **5** reports (`R-41202`, `R-41209`, `R-41236`, `R-41344`, `R-41620`) across 5 tenants (`kettle.books`, `alder.physio`, `nine.lanterns`, `pale.harbour`, `lantern.row`), seen `2026-04-02` → `2026-10-04`. These reports describe a one-day shift (such as Tuesday landing on Monday across timezones or in June) rather than a month/day swap, though `causes.ts` files them under `parser` by tenant.
+
+<Callout kind="warn">
+Three issues were merged into #4471: shared parser MM/DD parsing (374 reports / 379 with oneDayMove), booking-v3 MM/DD/YYYY form hint mismatch (33 reports), and one-day date/timezone shifts (5 reports).
 </Callout>
 
 ## What was merged
@@ -32,5 +39,7 @@ Known. One issue, one fix queued.
 
 ## Lessons
 
-- A big ticket is mostly one bug reported many times. Merge early, count once.
-- Write the page while the queue is still in your head.
+- Merging by subject line alone ([decision 0001](/kb/decisions/0001-dedupe-by-subject)) groups different causes together when symptoms sound alike (`parser`, `hint`, and `oneDayMove`).
+- `meta.intakeTag` guesses from `browserLocale` (`parser ×356 · hint ×23` on the 379 `parser` reports; `hint ×18 · parser ×15` on the 33 `hint` reports); the real cause depends on tenant locale, channel, booking form, and report body.
+
+<RenderStamp {signature} />

@@ -1,0 +1,43 @@
+---
+layout: runbook
+title: '#4471 · three bugs merged under one subject rule'
+owner: support desk
+status: accepted
+reviewed: 2026-10-29
+signature: v1.eyJzdWIiOiI4NTQwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyOTcxNjMsImV4cCI6MTc5MzM4MzU2M30.bQMkcyn4Jr6pxK0rhM45Ru_qjF34I_EFL-gnBOKlp20
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const signature = 'v1.eyJzdWIiOiI4NTQwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyOTcxNjMsImV4cCI6MTc5MzM4MzU2M30.bQMkcyn4Jr6pxK0rhM45Ru_qjF34I_EFL-gnBOKlp20';
+</script>
+
+Ticket `#4471` was marked known as a single issue (`dates parse mm/dd in eu locales`), with 412 unique reports (from 427 exported rows across overlapping pages) merged by subject line under [decision 0001](/kb/decisions/0001-dedupe-by-subject). Reading the tenant configuration (`locales.ts`), cause rules (`causes.ts`), and report bodies (`desk-notes.json`) shows three separate problems inside `#4471`.
+
+<Callout kind="warn">
+Merging by subject line alone hid two additional bugs inside #4471: the booking-v3 form date hint mismatch and a one-day timezone/date shift.
+</Callout>
+
+## What was merged into #4471
+
+<CauseTable ticket={4471} />
+
+## The three tickets
+
+1. **[#1 · Shared date parser reads dates month-first (`MM/DD`) for day-first (`DD/MM`) locales](https://github.com/olafkrawczyk/support-kb-4471/issues/1)** (`parser`) — **374** month/day-swap reports (**379** total under `causeOf() === 'parser'` before separating `oneDayMove`) across all 11 day-first tenants on `app` (204), `email` (150), and `booking-v2` `form` (25, where the hint is `DD/MM/YYYY`), seen `2026-04-01` → `2026-10-04`.
+2. **[#2 · `booking-v3` form prints `MM/DD/YYYY` date hint while parsing day-first (`DD/MM`)](https://github.com/olafkrawczyk/support-kb-4471/issues/2)** (`hint`) — **33** reports on the `form` channel across the 3 tenants running `booking-v3` (`alder.physio` ×12, `copper.studio` ×11, `pale.harbour` ×10), seen `2026-04-17` → `2026-09-22`. People follow the `MM/DD/YYYY` hint under the field while the form parses day-first.
+3. **[#3 · Bookings and calendar invites shift by one day (`oneDayMove`)](https://github.com/olafkrawczyk/support-kb-4471/issues/3)** (`oneDayMove`) — **5** reports (`R-41202`, `R-41209`, `R-41236`, `R-41344`, `R-41620`) across 5 tenants (`kettle.books`, `alder.physio`, `nine.lanterns`, `pale.harbour`, `lantern.row`), seen `2026-04-02` → `2026-10-04`. These reports describe a one-day shift (such as Tuesday landing on Monday across timezones or in June) rather than a month/day swap, though `causes.ts` files them under `parser` by tenant.
+
+## Since April
+
+<QueueTimeline ticket={4471} />
+
+## Why intake tags disagreed
+
+`meta.intakeTag` guessed the cause from `browserLocale` when each report arrived (`parser ×371`, `hint ×41` across all 412 reports: `parser ×356 · hint ×23` on the 379 `parser` reports, and `hint ×18 · parser ×15` on the 33 `hint` reports). The actual cause depends on the tenant's configured locale (`dayFirst(tenant.locale)`), channel (`app`, `email`, or `form`), and booking form (`booking-v2` vs `booking-v3`), plus reading the body when a report is a one-day shift rather than a month/day swap.
+
+<RenderStamp {signature} />
